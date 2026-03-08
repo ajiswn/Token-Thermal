@@ -188,7 +188,7 @@ class ReviewPage extends StatelessWidget {
 
             const SizedBox(height: 20),
             Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("ID PLN     : ${trx.idPln}"),
                 Text("Nama       : ${trx.nama}"),

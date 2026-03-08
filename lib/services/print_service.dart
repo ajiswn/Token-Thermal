@@ -12,7 +12,7 @@ class PrintService {
       String two(int n) => n.toString().padLeft(2, '0');
 
       return "${two(now.day)}/${two(now.month)}/${now.year} "
-            "${two(now.hour)}.${two(now.minute)}";
+            "${two(now.hour)}:${two(now.minute)}";
     }
 
     bool connected = await PrintBluetoothThermal.connectionStatus;
@@ -66,6 +66,7 @@ class PrintService {
     boldOff();
 
     normal();
+    line();
     line();
     line();
 
