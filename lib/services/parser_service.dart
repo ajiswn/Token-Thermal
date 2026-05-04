@@ -65,8 +65,9 @@ class ParserService {
 
   /// cari nominal
   static String _findNominal(List<String> lines, int start) {
-    for (int i = start; i < lines.length; i++) {
-      if (lines[i].toLowerCase().contains('token pln')) {
+    for (int i = start; i < lines.length; i++) {  
+      final l = lines[i].toLowerCase();
+      if(l.contains('token pln') || l.contains('rp')) {
         return lines[i];
       }
     }
@@ -84,10 +85,10 @@ class ParserService {
 
     final lines = _lines(text);
 
-    int idxId = lines.indexWhere((l) => l.contains('No. Pelanggan'));
+    int idxId = lines.indexWhere((l) => l.contains('No. Pelanggan') || l.contains('ID Pelanggan'));
     int idxNama = lines.indexWhere((l) => l.contains('Nama Pelanggan'));
-    int idxTarif = lines.indexWhere((l) => l.contains('Tarif Listrik'));
-    int idxNominal = lines.indexWhere((l) => l.contains('Nominal'));
+    int idxTarif = lines.indexWhere((l) => l.contains('Tarif Listrik') || l.contains('Tarif / Daya'));
+    int idxNominal = lines.indexWhere((l) => l.contains('Nominal') || l.contains('Rp Denom'));
 
     return PlnTransaction(
       idPln: _findLongNumber(lines, idxId + 1),
