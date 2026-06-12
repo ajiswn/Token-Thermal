@@ -8,8 +8,15 @@ class ParserService {
   /// cari angka panjang (ID PLN / Meter)
   static String _findLongNumber(List<String> lines, int start) {
     for (int i = start; i < lines.length; i++) {
-      if (RegExp(r'^\d{8,}$').hasMatch(lines[i])) {
-        return lines[i];
+      // 1. Bersihkan baris dari spasi atau karakter tak terlihat di ujung-ujung teks
+      final cleanLine = lines[i].trim();
+
+      // 2. Gunakan RegEx yang mencari pola angka minimal 8 digit di dalam baris tersebut
+      // (Bahkan jika ada teks lain di baris itu, angkanya tetap bisa diambil)
+      final match = RegExp(r'\d{8,}').firstMatch(cleanLine);
+      
+      if (match != null) {
+        return match.group(0)!; // Mengembalikan angka ID yang ditemukan
       }
     }
     return '';
@@ -31,7 +38,7 @@ class ParserService {
       'biaya',
       'total',
       'kb',
-      'salin'
+      'salin',
     ];
 
     for (int i = start; i < lines.length; i++) {
@@ -85,8 +92,8 @@ class ParserService {
 
     final lines = _lines(text);
 
-    int idxId = lines.indexWhere((l) => l.contains('No. Pelanggan') || l.contains('ID Pelanggan'));
-    int idxNama = lines.indexWhere((l) => l.contains('Nama Pelanggan'));
+    int idxId = lines.indexWhere((l) => l.contains('No. Pelanggan') || l.contains('ID Pelanggan') || l.contains('Nomor Meter'));
+    int idxNama = lines.indexWhere((l) => l.contains('Nama Pelanggan') || l.contains('Nama'));
     int idxTarif = lines.indexWhere((l) => l.contains('Tarif Listrik') || l.contains('Tarif / Daya'));
     int idxNominal = lines.indexWhere((l) => l.contains('Nominal') || l.contains('Rp Denom'));
 
