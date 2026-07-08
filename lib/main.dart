@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:pln_thermal_printer/manual_input_page.dart';
 import 'package:pln_thermal_printer/model/pln_transaction.dart';
 import 'package:pln_thermal_printer/services/printer_pref.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
@@ -9,9 +11,15 @@ import 'services/ocr_service.dart';
 import 'services/parser_service.dart';
 import 'services/print_service.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
+
+// void main() {
+//   runApp(const MyApp());
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -107,14 +115,18 @@ class _HomePageState extends State<HomePage> {
     /// BELUM PILIH PRINTER
     if (savedPrinter == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text("Pilih Printer")),
+        appBar: AppBar(
+          title: const Text("Pilih Printer"),
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+        ),
         body: ListView.builder(
           itemCount: printers.length,
           itemBuilder: (_, i) {
             final p = printers[i];
             return ListTile(
-              title: Text(p.name),
-              subtitle: Text(p.macAdress),
+              title: Text(p.name, style: TextStyle(color: Colors.white)),
+              subtitle: Text(p.macAdress, style: TextStyle(color: Colors.grey)),
               onTap: () => selectPrinter(p),
             );
           },
@@ -131,16 +143,46 @@ class _HomePageState extends State<HomePage> {
         foregroundColor: Colors.white,
         ),
       body: Center(
-        child: ElevatedButton.icon(
-          icon: const Icon(Icons.image),
-          label: const Text("Import Screenshot", style: TextStyle(fontSize: 16)),
-          onPressed: importImage,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-            minimumSize: Size(0, 48)
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.image),
+                label: const Text("Import Screenshot", style: TextStyle(fontSize: 16)),
+                onPressed: importImage,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                  minimumSize: Size(0, 48)
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            SizedBox(
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.edit_note),
+                label: const Text("Input Manual", style: TextStyle(fontSize: 16)),
+                onPressed: () {
+                  Navigator.push(
+                    context, 
+                    MaterialPageRoute(
+                      builder: (_) => ManualInputPage(printerMac: savedPrinter!),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                  minimumSize: Size(0, 48)
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -151,13 +193,13 @@ class _HomePageState extends State<HomePage> {
 class ReviewPage extends StatelessWidget {
 
   final PlnTransaction trx;
-  final File image;
+  final File? image;
   final String printerMac;
 
   const ReviewPage({
     super.key,
     required this.trx,
-    required this.image,
+    this.image,
     required this.printerMac,
   });
 
@@ -184,7 +226,10 @@ class ReviewPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
 
-            Image.file(image, height: 200),
+            if (image != null) ...[
+              Image.file(image!, height: 200),
+              const SizedBox(height: 20),
+            ],
 
             const SizedBox(height: 20),
             Column(
